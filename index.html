@@ -53,6 +53,40 @@
         <button id="btn-plus1" class="btn btn-secondary" disabled>+1 Min</button>
       </div>
     </section>
+
+    <hr class="divider">
+
+    <!-- Meeting Cost Calculator -->
+    <section id="meeting" class="section">
+      <h2 class="section-title">Meeting Cost</h2>
+      <div class="meeting-inputs">
+        <div class="input-group">
+          <input type="number" id="input-people" min="1" max="999" value="2" placeholder="#">
+          <label>People</label>
+        </div>
+        <div class="input-group">
+          <div class="currency-input">
+            <span class="currency-symbol">$</span>
+            <input type="number" id="input-rate" min="0" max="9999" value="75" step="5" placeholder="$/hr">
+          </div>
+          <label>Avg $/hr</label>
+        </div>
+      </div>
+      <div class="meeting-display">
+        <div class="meeting-timer-display" id="meeting-timer-display">
+          <span id="meeting-timer-time">00:00:00</span>
+        </div>
+        <div class="meeting-cost-display">
+          <span class="cost-label">Total Cost</span>
+          <span id="meeting-cost" class="cost-value">$0.00</span>
+        </div>
+      </div>
+      <div class="timer-controls">
+        <button id="btn-meeting-start" class="btn btn-primary">Start Meeting</button>
+        <button id="btn-meeting-pause" class="btn btn-warning" disabled>Pause</button>
+        <button id="btn-meeting-reset" class="btn btn-danger" disabled>Reset</button>
+      </div>
+    </section>
   </div>
 
   <script src="app.js"></script>

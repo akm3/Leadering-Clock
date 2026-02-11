@@ -311,3 +311,161 @@ btnMinus1.addEventListener('click', () => {
     localStorage.removeItem('timerState');
   }
 })();
+
+// ── Meeting Cost Calculator ─────────────────────
+let meetingElapsed = 0;      // seconds elapsed
+let meetingInterval = null;
+let meetingRunning = false;
+let meetingPaused = false;
+
+const inputPeople       = document.getElementById('input-people');
+const inputRate          = document.getElementById('input-rate');
+const meetingTimerTimeEl = document.getElementById('meeting-timer-time');
+const meetingCostEl      = document.getElementById('meeting-cost');
+const btnMeetingStart    = document.getElementById('btn-meeting-start');
+const btnMeetingPause    = document.getElementById('btn-meeting-pause');
+const btnMeetingReset    = document.getElementById('btn-meeting-reset');
+
+// Persistence
+function saveMeetingState() {
+  const state = {
+    meetingRunning,
+    meetingPaused,
+    meetingElapsed,
+    people: parseInt(inputPeople.value, 10) || 2,
+    rate: parseFloat(inputRate.value) || 75,
+    savedAt: Date.now(),
+  };
+  localStorage.setItem('meetingState', JSON.stringify(state));
+}
+
+function clearMeetingState() {
+  localStorage.removeItem('meetingState');
+}
+
+function formatMeetingTime(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updateMeetingCost() {
+  const people = parseInt(inputPeople.value, 10) || 0;
+  const rate = parseFloat(inputRate.value) || 0;
+  const hours = meetingElapsed / 3600;
+  const cost = people * rate * hours;
+  meetingCostEl.textContent = `$${cost.toFixed(2)}`;
+}
+
+function meetingTick() {
+  meetingElapsed++;
+  meetingTimerTimeEl.textContent = formatMeetingTime(meetingElapsed);
+  updateMeetingCost();
+  saveMeetingState();
+}
+
+function setMeetingInputsDisabled(disabled) {
+  inputPeople.disabled = disabled;
+  inputRate.disabled = disabled;
+}
+
+// Recalculate cost live when inputs change (even while running)
+inputPeople.addEventListener('input', () => { updateMeetingCost(); saveMeetingState(); });
+inputRate.addEventListener('input', () => { updateMeetingCost(); saveMeetingState(); });
+
+btnMeetingStart.addEventListener('click', () => {
+  if (meetingPaused) {
+    // Resume
+    meetingPaused = false;
+    meetingRunning = true;
+    meetingInterval = setInterval(meetingTick, 1000);
+    btnMeetingStart.textContent = 'Start Meeting';
+    btnMeetingStart.disabled = true;
+    btnMeetingPause.disabled = false;
+    btnMeetingPause.textContent = 'Pause';
+    saveMeetingState();
+    return;
+  }
+
+  meetingElapsed = 0;
+  meetingRunning = true;
+  meetingPaused = false;
+  meetingTimerTimeEl.textContent = formatMeetingTime(0);
+  updateMeetingCost();
+  meetingInterval = setInterval(meetingTick, 1000);
+
+  btnMeetingStart.disabled = true;
+  btnMeetingPause.disabled = false;
+  btnMeetingReset.disabled = false;
+  setMeetingInputsDisabled(false); // allow changing people/rate mid-meeting
+  saveMeetingState();
+});
+
+btnMeetingPause.addEventListener('click', () => {
+  if (!meetingRunning) return;
+  clearInterval(meetingInterval);
+  meetingInterval = null;
+  meetingPaused = true;
+  meetingRunning = false;
+  btnMeetingPause.textContent = 'Pause';
+  btnMeetingStart.textContent = 'Resume';
+  btnMeetingStart.disabled = false;
+  saveMeetingState();
+});
+
+btnMeetingReset.addEventListener('click', () => {
+  clearInterval(meetingInterval);
+  meetingInterval = null;
+  meetingRunning = false;
+  meetingPaused = false;
+  meetingElapsed = 0;
+
+  meetingTimerTimeEl.textContent = '00:00:00';
+  meetingCostEl.textContent = '$0.00';
+
+  btnMeetingStart.textContent = 'Start Meeting';
+  btnMeetingStart.disabled = false;
+  btnMeetingPause.disabled = true;
+  btnMeetingPause.textContent = 'Pause';
+  btnMeetingReset.disabled = true;
+  setMeetingInputsDisabled(false);
+  clearMeetingState();
+});
+
+// Restore meeting state on load
+(function restoreMeeting() {
+  const raw = localStorage.getItem('meetingState');
+  if (!raw) return;
+
+  try {
+    const state = JSON.parse(raw);
+    inputPeople.value = state.people || 2;
+    inputRate.value = state.rate || 75;
+
+    if (state.meetingRunning) {
+      const elapsedSec = Math.round((Date.now() - state.savedAt) / 1000);
+      meetingElapsed = state.meetingElapsed + elapsedSec;
+      meetingTimerTimeEl.textContent = formatMeetingTime(meetingElapsed);
+      updateMeetingCost();
+      meetingRunning = true;
+      meetingInterval = setInterval(meetingTick, 1000);
+
+      btnMeetingStart.disabled = true;
+      btnMeetingPause.disabled = false;
+      btnMeetingReset.disabled = false;
+    } else if (state.meetingPaused) {
+      meetingElapsed = state.meetingElapsed;
+      meetingTimerTimeEl.textContent = formatMeetingTime(meetingElapsed);
+      updateMeetingCost();
+      meetingPaused = true;
+
+      btnMeetingStart.textContent = 'Resume';
+      btnMeetingStart.disabled = false;
+      btnMeetingPause.disabled = true;
+      btnMeetingReset.disabled = false;
+    }
+  } catch (_) {
+    localStorage.removeItem('meetingState');
+  }
+})();
