@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock & Timer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <h1 class="app-title">Leadering Clock</h1>
+
+    <!-- Clock -->
+    <section id="clock" class="section">
+      <div class="clock-display">
+        <span id="clock-time">00:00:00</span>
+        <span id="clock-ampm"></span>
+      </div>
+      <div id="clock-date" class="clock-date"></div>
+      <button id="format-toggle" class="btn btn-secondary">Switch to 24h</button>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Timer -->
+    <section id="timer" class="section">
+      <div class="timer-layout">
+        <div class="timer-main">
+          <div class="timer-display" id="timer-display">
+            <span id="timer-time">00:00:00</span>
+          </div>
+          <div class="timer-inputs">
+            <div class="input-group">
+              <input type="number" id="input-hours" min="0" max="99" value="0" placeholder="HH">
+              <label>Hours</label>
+            </div>
+            <span class="input-separator">:</span>
+            <div class="input-group">
+              <input type="number" id="input-minutes" min="0" max="59" value="0" placeholder="MM">
+              <label>Minutes</label>
+            </div>
+            <span class="input-separator">:</span>
+            <div class="input-group">
+              <input type="number" id="input-seconds" min="0" max="59" value="0" placeholder="SS">
+              <label>Seconds</label>
+            </div>
+          </div>
+          <div class="timer-controls">
+            <button id="btn-start" class="btn btn-primary">Start</button>
+            <button id="btn-pause" class="btn btn-warning" disabled>Pause</button>
+            <button id="btn-reset" class="btn btn-danger" disabled>Reset</button>
+          </div>
+          <div class="timer-adjust">
+            <button id="btn-minus1" class="btn btn-secondary" disabled>-1 Min</button>
+            <button id="btn-plus1" class="btn btn-secondary" disabled>+1 Min</button>
+          </div>
+        </div>
+        <div class="timer-presets">
+          <button class="btn btn-preset" data-minutes="5">5</button>
+          <button class="btn btn-preset" data-minutes="7">7</button>
+          <button class="btn btn-preset" data-minutes="10">10</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

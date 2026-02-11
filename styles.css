@@ -1,0 +1,360 @@
+/* ── IntelliTect Theme ────────────────────────── */
+/* Brand blue #1F70B9, clean professional styling  */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --it-blue: #1F70B9;
+  --it-blue-dark: #185A94;
+  --it-blue-light: #E8F1FA;
+  --it-blue-subtle: #F2F7FC;
+  --it-navy: #1A2332;
+  --it-dark: #2D3748;
+  --it-grey: #8896A6;
+  --it-light: #E2E8F0;
+  --it-white: #FFFFFF;
+  --it-bg: #F7F9FC;
+  --it-success: #38A169;
+  --it-warning: #D69E2E;
+  --it-danger: #E53E3E;
+}
+
+body {
+  font-family: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--it-bg);
+  color: var(--it-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Subtle dot grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--it-light) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Blue accent stripe across the top */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--it-blue), var(--it-blue-dark));
+  z-index: 10;
+}
+
+/* ── App Container ───────────────────────────── */
+.app-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 500px;
+  padding: 2.5rem 2rem;
+  background: var(--it-white);
+  border: 1px solid var(--it-light);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(31,112,185,0.08);
+}
+
+/* Blue top-edge accent bar */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 3px;
+  background: linear-gradient(90deg, var(--it-blue), var(--it-blue-dark));
+  border-radius: 0 0 2px 2px;
+}
+
+/* ── Title ────────────────────────────────────── */
+.app-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--it-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Timer Layout ─────────────────────────────── */
+.timer-layout {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.timer-main {
+  flex: 1;
+}
+
+.timer-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-preset {
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--it-blue-light);
+  color: var(--it-blue);
+  border: 1.5px solid var(--it-blue-light);
+  border-radius: 0.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-preset:hover {
+  background: var(--it-blue);
+  color: var(--it-white);
+  border-color: var(--it-blue);
+}
+
+/* ── Sections ─────────────────────────────────── */
+.section {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--it-light);
+  margin: 0;
+}
+
+/* ── Clock ────────────────────────────────────── */
+.clock-display {
+  font-family: 'DM Mono', 'SF Mono', monospace;
+  font-size: 4.2rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--it-navy);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+#clock-ampm {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--it-blue);
+  margin-left: 0.4rem;
+  vertical-align: super;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.clock-date {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--it-grey);
+  letter-spacing: 0.03em;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Timer Display ────────────────────────────── */
+.timer-display {
+  font-family: 'DM Mono', 'SF Mono', monospace;
+  font-size: 4.2rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--it-navy);
+  line-height: 1;
+  margin-bottom: 1.8rem;
+  transition: color 0.3s ease;
+}
+
+.timer-display.flash {
+  animation: it-flash 0.5s ease infinite alternate;
+}
+
+.timer-display.negative {
+  color: var(--it-danger);
+}
+
+@keyframes it-flash {
+  from { color: var(--it-navy); }
+  to   { color: var(--it-blue); }
+}
+
+/* ── Timer Inputs ─────────────────────────────── */
+.timer-inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.8rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-group input {
+  width: 4.8rem;
+  padding: 0.6rem;
+  border: 1.5px solid var(--it-light);
+  border-radius: 0.5rem;
+  background: var(--it-blue-subtle);
+  color: var(--it-navy);
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+  -moz-appearance: textfield;
+}
+
+.input-group input::-webkit-inner-spin-button,
+.input-group input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.input-group input:focus {
+  border-color: var(--it-blue);
+  box-shadow: 0 0 0 3px rgba(31,112,185,0.15);
+  background: var(--it-white);
+}
+
+.input-group label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--it-grey);
+  margin-top: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.input-separator {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--it-grey);
+  font-weight: 500;
+  padding-bottom: 1.4rem;
+}
+
+/* ── Buttons ──────────────────────────────────── */
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.timer-adjust {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.btn {
+  padding: 0.6rem 1.8rem;
+  border: 1.5px solid transparent;
+  border-radius: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Primary — IntelliTect blue */
+.btn-primary {
+  background: var(--it-blue);
+  color: var(--it-white);
+  border-color: var(--it-blue);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--it-blue-dark);
+  border-color: var(--it-blue-dark);
+  box-shadow: 0 2px 8px rgba(31,112,185,0.3);
+}
+
+/* Warning / Pause — amber outline */
+.btn-warning {
+  background: transparent;
+  color: var(--it-warning);
+  border-color: var(--it-warning);
+}
+.btn-warning:hover:not(:disabled) {
+  background: var(--it-warning);
+  color: var(--it-white);
+}
+
+/* Danger / Reset — outlined dark */
+.btn-danger {
+  background: transparent;
+  color: var(--it-grey);
+  border-color: var(--it-light);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--it-danger);
+  color: var(--it-white);
+  border-color: var(--it-danger);
+}
+
+/* Secondary — ghost with blue hover */
+.btn-secondary {
+  background: var(--it-blue-light);
+  color: var(--it-blue);
+  border-color: transparent;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--it-blue);
+  color: var(--it-white);
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 500px) {
+  .app-container {
+    margin: 1rem;
+    padding: 2rem 1.25rem;
+  }
+  .clock-display,
+  .timer-display {
+    font-size: 3rem;
+  }
+  .input-group input {
+    width: 3.5rem;
+    font-size: 1.2rem;
+  }
+}
