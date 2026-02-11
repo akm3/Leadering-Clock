@@ -256,39 +256,6 @@ btnMinus1.addEventListener('click', () => {
   });
 });
 
-// ── Preset Buttons ──────────────────────────────
-document.querySelectorAll('.btn-preset').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Stop any running timer and reset state
-    clearInterval(timerInterval);
-    timerInterval = null;
-    isRunning = false;
-    isPaused = false;
-    hasReachedZero = false;
-    timerDisplay.classList.remove('negative');
-
-    const mins = parseInt(btn.dataset.minutes, 10);
-    timerDuration = mins * 60;
-
-    // Update display and inputs
-    timerTimeEl.textContent = formatTime(timerDuration);
-    inputHours.value = 0;
-    inputMinutes.value = mins;
-    inputSeconds.value = 0;
-
-    // Reset button states
-    btnStart.textContent = 'Start';
-    btnStart.disabled = false;
-    btnPause.disabled = true;
-    btnPause.textContent = 'Pause';
-    btnReset.disabled = false;
-    btnPlus1.disabled = true;
-    btnMinus1.disabled = true;
-    setInputsDisabled(false);
-    saveTimerState();
-  });
-});
-
 // ── Restore Timer on Page Load ──────────────────
 (function restoreTimer() {
   const raw = localStorage.getItem('timerState');

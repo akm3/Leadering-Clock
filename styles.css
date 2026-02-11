@@ -99,47 +99,6 @@ body::after {
   margin-bottom: 1.5rem;
 }
 
-/* ── Timer Layout ─────────────────────────────── */
-.timer-layout {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.timer-main {
-  flex: 1;
-}
-
-.timer-presets {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.btn-preset {
-  width: 3.2rem;
-  height: 3.2rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--it-blue-light);
-  color: var(--it-blue);
-  border: 1.5px solid var(--it-blue-light);
-  border-radius: 0.5rem;
-  font-family: 'DM Mono', monospace;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-preset:hover {
-  background: var(--it-blue);
-  color: var(--it-white);
-  border-color: var(--it-blue);
-}
-
 /* ── Sections ─────────────────────────────────── */
 .section {
   text-align: center;
