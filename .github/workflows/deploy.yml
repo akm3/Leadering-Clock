@@ -20,7 +20,7 @@ jobs:
         env:
           SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
         run: |
-          swa deploy . --env Production
+          swa deploy . --env Production --app-name leaderingclock
           if [ $? -ne 0 ]; then
             echo "Deployment failed!"
             exit 1
