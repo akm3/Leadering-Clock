@@ -8,37 +8,30 @@
 </head>
 <body>
   <div class="app-container">
-    <h1 class="app-title">Leadering Clock</h1>
+    <h1 class="app-title"><span title="Leadering? Why that name? Thank Dia who wrote it on our whiteboard on February 11th, 2026">Leadering</span> Clock</h1>
 
     <!-- Clock -->
     <section id="clock" class="section">
-      <div class="clock-display">
-        <span id="clock-time">00:00:00</span>
-      </div>
       <div id="clock-date" class="clock-date"></div>
+      <div class="clock-display">
+        <span id="clock-time">00:00</span>
+      </div>
     </section>
 
     <hr class="divider">
 
     <!-- Timer -->
     <section id="timer" class="section">
+      <h2 class="section-title">Item Timer</h2>
       <div class="timer-display" id="timer-display">
-        <span id="timer-time">00:05:00</span>
+        <span id="timer-skull" class="timer-skull" hidden>&#x1F480;</span>
+        <span id="timer-time">0:05:00</span>
+        <span id="timer-warning" class="timer-warning" hidden>!!!</span>
       </div>
       <div class="timer-inputs">
         <div class="input-group">
-          <input type="number" id="input-hours" min="0" max="99" value="0" placeholder="HH">
-          <label>Hours</label>
-        </div>
-        <span class="input-separator">:</span>
-        <div class="input-group">
-          <input type="number" id="input-minutes" min="0" max="59" value="5" placeholder="MM">
+          <input type="number" id="input-minutes" min="0" max="999" value="5" placeholder="Min">
           <label>Minutes</label>
-        </div>
-        <span class="input-separator">:</span>
-        <div class="input-group">
-          <input type="number" id="input-seconds" min="0" max="59" value="0" placeholder="SS">
-          <label>Seconds</label>
         </div>
       </div>
       <div class="timer-controls">
@@ -47,8 +40,8 @@
         <button id="btn-reset" class="btn btn-danger" disabled>Reset</button>
       </div>
       <div class="timer-adjust">
-        <button id="btn-minus1" class="btn btn-secondary" disabled>-1 Min</button>
-        <button id="btn-plus1" class="btn btn-secondary" disabled>+1 Min</button>
+        <button id="btn-minus1" class="btn btn-secondary">-1 Min</button>
+        <button id="btn-plus1" class="btn btn-secondary">+1 Min</button>
       </div>
     </section>
 
@@ -63,12 +56,13 @@
           <span id="meeting-cost" class="cost-value">$0.00</span>
         </div>
         <div class="meeting-timer-display" id="meeting-timer-display">
-          <span id="meeting-timer-time">00:00:00</span>
+          <span class="cost-label">Meet Time</span>
+          <span id="meeting-timer-time">0:00:00</span>
         </div>
       </div>
       <div class="timer-controls">
         <button id="btn-meeting-start" class="btn btn-primary">Start Meeting</button>
-        <button id="btn-meeting-pause" class="btn btn-warning" disabled>Pause</button>
+        <button id="btn-meeting-pause" class="btn btn-warning" disabled>End Meeting</button>
         <button id="btn-meeting-reset" class="btn btn-danger" disabled>Reset</button>
       </div>
       <div class="meeting-inputs">
