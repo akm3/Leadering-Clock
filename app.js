@@ -1,8 +1,8 @@
 // ── State ────────────────────────────────────────
-let is24Hour = false;
 let clockInterval = null;
 
 let timerDuration = 0;   // seconds remaining
+let timerInitialDuration = 300; // last started duration (default 5 min)
 let timerInterval = null;
 let isRunning = false;
 let isPaused = false;
@@ -17,6 +17,7 @@ function saveTimerState() {
     // Store the wall-clock time when the timer was last synced
     savedAt: Date.now(),
     timerDuration,
+    timerInitialDuration,
   };
   localStorage.setItem('timerState', JSON.stringify(state));
 }
@@ -27,9 +28,7 @@ function clearTimerState() {
 
 // ── DOM References ──────────────────────────────
 const clockTimeEl  = document.getElementById('clock-time');
-const clockAmpmEl  = document.getElementById('clock-ampm');
 const clockDateEl  = document.getElementById('clock-date');
-const formatToggle = document.getElementById('format-toggle');
 
 const timerTimeEl   = document.getElementById('timer-time');
 const timerDisplay  = document.getElementById('timer-display');
@@ -46,29 +45,15 @@ const btnMinus1     = document.getElementById('btn-minus1');
 function updateClock() {
   const now = new Date();
 
-  let hours = now.getHours();
+  const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
 
-  if (is24Hour) {
-    clockTimeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
-    clockAmpmEl.textContent = '';
-  } else {
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    clockTimeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
-    clockAmpmEl.textContent = ampm;
-  }
+  clockTimeEl.textContent = `${hours}:${minutes}:${seconds}`;
 
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   clockDateEl.textContent = now.toLocaleDateString('en-US', options);
 }
-
-formatToggle.addEventListener('click', () => {
-  is24Hour = !is24Hour;
-  formatToggle.textContent = is24Hour ? 'Switch to 12h' : 'Switch to 24h';
-  updateClock();
-});
 
 // Start the clock immediately
 updateClock();
@@ -169,6 +154,7 @@ btnStart.addEventListener('click', () => {
   if (duration <= 0) return; // nothing to count down
 
   timerDuration = duration;
+  timerInitialDuration = duration;
   timerTimeEl.textContent = formatTime(timerDuration);
   isRunning = true;
   isPaused = false;
@@ -209,10 +195,14 @@ btnReset.addEventListener('click', () => {
   hasReachedZero = false;
   timerDuration = 0;
 
-  timerTimeEl.textContent = '00:00:00';
-  inputHours.value = 0;
-  inputMinutes.value = 0;
-  inputSeconds.value = 0;
+  // Restore to the last-used duration (or default 5 min)
+  const resetH = Math.floor(timerInitialDuration / 3600);
+  const resetM = Math.floor((timerInitialDuration % 3600) / 60);
+  const resetS = timerInitialDuration % 60;
+  timerTimeEl.textContent = formatTime(timerInitialDuration);
+  inputHours.value = resetH;
+  inputMinutes.value = resetM;
+  inputSeconds.value = resetS;
 
   btnStart.textContent = 'Start';
   btnStart.disabled = false;
@@ -264,6 +254,7 @@ btnMinus1.addEventListener('click', () => {
   try {
     const state = JSON.parse(raw);
     hasReachedZero = state.hasReachedZero || false;
+    timerInitialDuration = state.timerInitialDuration || 300;
 
     if (state.isRunning) {
       // Timer was actively running — account for elapsed time since save
