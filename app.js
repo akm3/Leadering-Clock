@@ -1,8 +1,8 @@
 // ── State ────────────────────────────────────────
-let is24Hour = false;
 let clockInterval = null;
 
 let timerDuration = 0;   // seconds remaining
+let timerInitialDuration = 300; // last started duration (default 5 min)
 let timerInterval = null;
 let isRunning = false;
 let isPaused = false;
@@ -17,6 +17,7 @@ function saveTimerState() {
     // Store the wall-clock time when the timer was last synced
     savedAt: Date.now(),
     timerDuration,
+    timerInitialDuration,
   };
   localStorage.setItem('timerState', JSON.stringify(state));
 }
@@ -27,48 +28,32 @@ function clearTimerState() {
 
 // ── DOM References ──────────────────────────────
 const clockTimeEl  = document.getElementById('clock-time');
-const clockAmpmEl  = document.getElementById('clock-ampm');
 const clockDateEl  = document.getElementById('clock-date');
-const formatToggle = document.getElementById('format-toggle');
 
 const timerTimeEl   = document.getElementById('timer-time');
 const timerDisplay  = document.getElementById('timer-display');
-const inputHours    = document.getElementById('input-hours');
 const inputMinutes  = document.getElementById('input-minutes');
-const inputSeconds  = document.getElementById('input-seconds');
 const btnStart      = document.getElementById('btn-start');
 const btnPause      = document.getElementById('btn-pause');
 const btnReset      = document.getElementById('btn-reset');
 const btnPlus1      = document.getElementById('btn-plus1');
 const btnMinus1     = document.getElementById('btn-minus1');
+const timerWarning  = document.getElementById('timer-warning');
+const timerSkull    = document.getElementById('timer-skull');
 
 // ── Clock ───────────────────────────────────────
 function updateClock() {
   const now = new Date();
 
-  let hours = now.getHours();
+  const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
 
-  if (is24Hour) {
-    clockTimeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
-    clockAmpmEl.textContent = '';
-  } else {
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    clockTimeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
-    clockAmpmEl.textContent = ampm;
-  }
+  clockTimeEl.textContent = `${hours}:${minutes}`;
 
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  clockDateEl.textContent = now.toLocaleDateString('en-US', options);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  clockDateEl.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
-
-formatToggle.addEventListener('click', () => {
-  is24Hour = !is24Hour;
-  formatToggle.textContent = is24Hour ? 'Switch to 12h' : 'Switch to 24h';
-  updateClock();
-});
 
 // Start the clock immediately
 updateClock();
@@ -80,7 +65,7 @@ function formatTime(totalSeconds) {
   const h = Math.floor(abs / 3600);
   const m = Math.floor((abs % 3600) / 60);
   const s = abs % 60;
-  const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const time = `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   return totalSeconds < 0 ? `-${time}` : time;
 }
 
@@ -92,21 +77,20 @@ function clamp(value, min, max) {
 }
 
 function getInputDuration() {
-  const h = clamp(inputHours.value, 0, 99);
-  const m = clamp(inputMinutes.value, 0, 59);
-  const s = clamp(inputSeconds.value, 0, 59);
-  return h * 3600 + m * 60 + s;
+  const m = clamp(inputMinutes.value, 0, 999);
+  return m * 60;
 }
 
 function setInputsDisabled(disabled) {
-  inputHours.disabled = disabled;
   inputMinutes.disabled = disabled;
-  inputSeconds.disabled = disabled;
 }
 
 function stopFlash() {
   timerDisplay.classList.remove('flash');
   timerDisplay.classList.remove('negative');
+  timerDisplay.classList.remove('urgent-flash');
+  timerWarning.hidden = true;
+  timerSkull.hidden = true;
 }
 
 // ── Timer: Alert on reaching zero ───────────────
@@ -145,6 +129,17 @@ function tick() {
   } else if (timerDuration < 0 && !hasReachedZero) {
     timerReachedZero();
   }
+
+  // At -5 minutes: start flashing and show !!!
+  if (timerDuration <= -300 && !timerDisplay.classList.contains('urgent-flash')) {
+    timerDisplay.classList.add('urgent-flash');
+    timerWarning.hidden = false;
+  }
+
+  // At -10 minutes: show skull
+  if (timerDuration <= -600) {
+    timerSkull.hidden = false;
+  }
 }
 
 // ── Timer Controls ──────────────────────────────
@@ -169,6 +164,7 @@ btnStart.addEventListener('click', () => {
   if (duration <= 0) return; // nothing to count down
 
   timerDuration = duration;
+  timerInitialDuration = duration;
   timerTimeEl.textContent = formatTime(timerDuration);
   isRunning = true;
   isPaused = false;
@@ -178,8 +174,6 @@ btnStart.addEventListener('click', () => {
   btnStart.disabled = true;
   btnPause.disabled = false;
   btnReset.disabled = false;
-  btnPlus1.disabled = false;
-  btnMinus1.disabled = false;
   setInputsDisabled(true);
   saveTimerState();
 });
@@ -209,51 +203,77 @@ btnReset.addEventListener('click', () => {
   hasReachedZero = false;
   timerDuration = 0;
 
-  timerTimeEl.textContent = '00:00:00';
-  inputHours.value = 0;
-  inputMinutes.value = 0;
-  inputSeconds.value = 0;
+  // Restore to the last-used duration (or default 5 min)
+  const resetM = Math.round(timerInitialDuration / 60);
+  timerTimeEl.textContent = formatTime(timerInitialDuration);
+  inputMinutes.value = resetM;
 
   btnStart.textContent = 'Start';
   btnStart.disabled = false;
   btnPause.disabled = true;
   btnPause.textContent = 'Pause';
   btnReset.disabled = true;
-  btnPlus1.disabled = true;
-  btnMinus1.disabled = true;
   setInputsDisabled(false);
   clearTimerState();
 });
 
 // ── +/- 1 Minute Controls ───────────────────────
 btnPlus1.addEventListener('click', () => {
+  if (!isRunning && !isPaused) {
+    let m = clamp(inputMinutes.value, 0, 999) + 1;
+    if (m > 999) m = 999;
+    inputMinutes.value = m;
+    timerTimeEl.textContent = formatTime(m * 60);
+    return;
+  }
   timerDuration += 60;
   timerTimeEl.textContent = formatTime(timerDuration);
   saveTimerState();
-  // If adding time brings us back above zero, remove negative styling
   if (timerDuration >= 0 && hasReachedZero) {
     hasReachedZero = false;
     timerDisplay.classList.remove('negative');
+    timerDisplay.classList.remove('urgent-flash');
+    timerWarning.hidden = true;
+    timerSkull.hidden = true;
+  } else {
+    // Update warning states based on current duration
+    if (timerDuration > -300) {
+      timerDisplay.classList.remove('urgent-flash');
+      timerWarning.hidden = true;
+    }
+    if (timerDuration > -600) {
+      timerSkull.hidden = true;
+    }
   }
 });
 
 btnMinus1.addEventListener('click', () => {
+  if (!isRunning && !isPaused) {
+    let m = clamp(inputMinutes.value, 0, 999) - 1;
+    if (m < 0) m = 0;
+    inputMinutes.value = m;
+    timerTimeEl.textContent = formatTime(m * 60);
+    return;
+  }
   timerDuration -= 60;
   timerTimeEl.textContent = formatTime(timerDuration);
   saveTimerState();
-  // If subtracting pushes below zero, apply negative styling
   if (timerDuration < 0 && !hasReachedZero) {
     hasReachedZero = true;
     timerDisplay.classList.add('negative');
   }
+  if (timerDuration <= -300) {
+    timerDisplay.classList.add('urgent-flash');
+    timerWarning.hidden = false;
+  }
+  if (timerDuration <= -600) {
+    timerSkull.hidden = false;
+  }
 });
 
 // ── Input Validation ────────────────────────────
-[inputHours, inputMinutes, inputSeconds].forEach(input => {
-  input.addEventListener('change', () => {
-    const max = input === inputHours ? 99 : 59;
-    input.value = clamp(input.value, 0, max);
-  });
+inputMinutes.addEventListener('change', () => {
+  inputMinutes.value = clamp(inputMinutes.value, 0, 999);
 });
 
 // ── Restore Timer on Page Load ──────────────────
@@ -264,6 +284,7 @@ btnMinus1.addEventListener('click', () => {
   try {
     const state = JSON.parse(raw);
     hasReachedZero = state.hasReachedZero || false;
+    timerInitialDuration = state.timerInitialDuration || 300;
 
     if (state.isRunning) {
       // Timer was actively running — account for elapsed time since save
@@ -277,8 +298,6 @@ btnMinus1.addEventListener('click', () => {
       btnStart.disabled = true;
       btnPause.disabled = false;
       btnReset.disabled = false;
-      btnPlus1.disabled = false;
-      btnMinus1.disabled = false;
       setInputsDisabled(true);
 
       // Check if timer crossed zero while page was closed
@@ -287,6 +306,13 @@ btnMinus1.addEventListener('click', () => {
         timerDisplay.classList.add('negative');
       } else if (hasReachedZero) {
         timerDisplay.classList.add('negative');
+      }
+      if (timerDuration <= -300) {
+        timerDisplay.classList.add('urgent-flash');
+        timerWarning.hidden = false;
+      }
+      if (timerDuration <= -600) {
+        timerSkull.hidden = false;
       }
     } else if (state.isPaused) {
       // Timer was paused — restore exact duration
@@ -299,12 +325,17 @@ btnMinus1.addEventListener('click', () => {
       btnStart.disabled = false;
       btnPause.disabled = true;
       btnReset.disabled = false;
-      btnPlus1.disabled = false;
-      btnMinus1.disabled = false;
       setInputsDisabled(true);
 
       if (hasReachedZero) {
         timerDisplay.classList.add('negative');
+      }
+      if (timerDuration <= -300) {
+        timerDisplay.classList.add('urgent-flash');
+        timerWarning.hidden = false;
+      }
+      if (timerDuration <= -600) {
+        timerSkull.hidden = false;
       }
     }
   } catch (_) {
@@ -347,7 +378,7 @@ function formatMeetingTime(totalSeconds) {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 function updateMeetingCost() {
@@ -383,7 +414,7 @@ btnMeetingStart.addEventListener('click', () => {
     btnMeetingStart.textContent = 'Start Meeting';
     btnMeetingStart.disabled = true;
     btnMeetingPause.disabled = false;
-    btnMeetingPause.textContent = 'Pause';
+    btnMeetingPause.textContent = 'End Meeting';
     saveMeetingState();
     return;
   }
@@ -408,7 +439,7 @@ btnMeetingPause.addEventListener('click', () => {
   meetingInterval = null;
   meetingPaused = true;
   meetingRunning = false;
-  btnMeetingPause.textContent = 'Pause';
+  btnMeetingPause.textContent = 'End Meeting';
   btnMeetingStart.textContent = 'Resume';
   btnMeetingStart.disabled = false;
   saveMeetingState();
@@ -421,13 +452,13 @@ btnMeetingReset.addEventListener('click', () => {
   meetingPaused = false;
   meetingElapsed = 0;
 
-  meetingTimerTimeEl.textContent = '00:00:00';
+  meetingTimerTimeEl.textContent = '0:00:00';
   meetingCostEl.textContent = '$0.00';
 
   btnMeetingStart.textContent = 'Start Meeting';
   btnMeetingStart.disabled = false;
   btnMeetingPause.disabled = true;
-  btnMeetingPause.textContent = 'Pause';
+  btnMeetingPause.textContent = 'End Meeting';
   btnMeetingReset.disabled = true;
   setMeetingInputsDisabled(false);
   clearMeetingState();

@@ -122,23 +122,13 @@ body::after {
   margin-bottom: 0.4rem;
 }
 
-#clock-ampm {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--it-blue);
-  margin-left: 0.4rem;
-  vertical-align: super;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .clock-date {
+  font-family: 'DM Mono', 'SF Mono', monospace;
   font-size: 0.85rem;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--it-grey);
   letter-spacing: 0.03em;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.25rem;
 }
 
 /* ── Timer Display ────────────────────────────── */
@@ -159,6 +149,27 @@ body::after {
 
 .timer-display.negative {
   color: var(--it-danger);
+}
+
+.timer-display.urgent-flash {
+  animation: urgent-flash 0.4s ease infinite alternate;
+}
+
+@keyframes urgent-flash {
+  from { color: var(--it-danger); }
+  to   { color: var(--it-navy); }
+}
+
+.timer-warning {
+  color: var(--it-danger);
+  font-weight: 700;
+  margin-left: 0.3rem;
+}
+
+.timer-skull {
+  font-size: 3.5rem;
+  margin-right: 0.3rem;
+  line-height: 1;
 }
 
 @keyframes it-flash {
@@ -319,7 +330,7 @@ body::after {
   justify-content: center;
   align-items: flex-start;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .currency-input {
@@ -341,23 +352,15 @@ body::after {
 
 .currency-input input {
   padding-left: 1.5rem;
+  width: 6rem;
 }
 
 .meeting-display {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   gap: 2rem;
   margin-bottom: 1.5rem;
-}
-
-.meeting-timer-display {
-  font-family: 'DM Mono', 'SF Mono', monospace;
-  font-size: 2.4rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--it-navy);
-  line-height: 1;
 }
 
 .meeting-cost-display {
@@ -380,6 +383,18 @@ body::after {
   font-size: 2.4rem;
   font-weight: 500;
   color: var(--it-danger);
+  line-height: 1;
+}
+
+.meeting-timer-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'DM Mono', 'SF Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--it-navy);
   line-height: 1;
 }
 
