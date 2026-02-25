@@ -34,8 +34,10 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Subtle dot grid background */
@@ -409,7 +411,7 @@ body::after {
 
 .currency-input input {
   padding-left: 1.5rem;
-  width: 6rem;
+  width: 7rem;
 }
 
 .meeting-display {
@@ -467,6 +469,10 @@ body::after {
   }
   .input-group input {
     width: 3.5rem;
+    font-size: 1.2rem;
+  }
+  .currency-input input {
+    width: 5rem;
     font-size: 1.2rem;
   }
   .meeting-display {
