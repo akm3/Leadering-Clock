@@ -34,7 +34,6 @@ const timerTimeEl   = document.getElementById('timer-time');
 const timerDisplay  = document.getElementById('timer-display');
 const inputMinutes  = document.getElementById('input-minutes');
 const btnStart      = document.getElementById('btn-start');
-const btnPause      = document.getElementById('btn-pause');
 const btnReset      = document.getElementById('btn-reset');
 const btnPlus1      = document.getElementById('btn-plus1');
 const btnMinus1     = document.getElementById('btn-minus1');
@@ -184,24 +183,38 @@ function tick() {
 
 // ── Timer Controls ──────────────────────────────
 btnStart.addEventListener('click', () => {
-  stopFlash();
-  hasReachedZero = false;
-
-  if (isPaused) {
-    // Resume
-    isPaused = false;
-    isRunning = true;
-    timerInterval = setInterval(tick, 1000);
-    btnStart.textContent = 'Start';
-    btnStart.disabled = true;
-    btnPause.disabled = false;
-    btnPause.textContent = 'Pause';
+  if (isRunning) {
+    // Pause
+    clearInterval(timerInterval);
+    timerInterval = null;
+    isPaused = true;
+    isRunning = false;
+    btnStart.textContent = 'Resume';
+    btnStart.classList.remove('btn-warning');
+    btnStart.classList.add('btn-primary');
     saveTimerState();
     return;
   }
 
+  if (isPaused) {
+    // Resume
+    stopFlash();
+    isPaused = false;
+    isRunning = true;
+    timerInterval = setInterval(tick, 1000);
+    btnStart.textContent = 'Pause';
+    btnStart.classList.remove('btn-primary');
+    btnStart.classList.add('btn-warning');
+    saveTimerState();
+    return;
+  }
+
+  // Fresh start
+  stopFlash();
+  hasReachedZero = false;
+
   const duration = getInputDuration();
-  if (duration <= 0) return; // nothing to count down
+  if (duration <= 0) return;
 
   timerDuration = duration;
   timerInitialDuration = duration;
@@ -211,27 +224,12 @@ btnStart.addEventListener('click', () => {
 
   timerInterval = setInterval(tick, 1000);
 
-  btnStart.disabled = true;
-  btnPause.disabled = false;
+  btnStart.textContent = 'Pause';
+  btnStart.classList.remove('btn-primary');
+  btnStart.classList.add('btn-warning');
   btnReset.disabled = false;
   setInputsDisabled(true);
   saveTimerState();
-});
-
-btnPause.addEventListener('click', () => {
-  if (!isRunning) return;
-
-  if (!isPaused) {
-    // Pause
-    clearInterval(timerInterval);
-    timerInterval = null;
-    isPaused = true;
-    isRunning = false;
-    btnPause.textContent = 'Pause';
-    btnStart.textContent = 'Resume';
-    btnStart.disabled = false;
-    saveTimerState();
-  }
 });
 
 btnReset.addEventListener('click', () => {
@@ -243,15 +241,13 @@ btnReset.addEventListener('click', () => {
   hasReachedZero = false;
   timerDuration = 0;
 
-  // Restore to the last-used duration (or default 5 min)
   const resetM = Math.round(timerInitialDuration / 60);
   timerTimeEl.textContent = formatTime(timerInitialDuration);
   inputMinutes.value = resetM;
 
   btnStart.textContent = 'Start';
-  btnStart.disabled = false;
-  btnPause.disabled = true;
-  btnPause.textContent = 'Pause';
+  btnStart.classList.remove('btn-warning');
+  btnStart.classList.add('btn-primary');
   btnReset.disabled = true;
   setInputsDisabled(false);
   clearTimerState();
@@ -327,7 +323,6 @@ inputMinutes.addEventListener('change', () => {
     timerInitialDuration = state.timerInitialDuration || 300;
 
     if (state.isRunning) {
-      // Timer was actively running — account for elapsed time since save
       const elapsedSec = Math.round((Date.now() - state.savedAt) / 1000);
       timerDuration = state.timerDuration - elapsedSec;
       timerTimeEl.textContent = formatTime(timerDuration);
@@ -335,12 +330,12 @@ inputMinutes.addEventListener('change', () => {
       isPaused = false;
       timerInterval = setInterval(tick, 1000);
 
-      btnStart.disabled = true;
-      btnPause.disabled = false;
+      btnStart.textContent = 'Pause';
+      btnStart.classList.remove('btn-primary');
+      btnStart.classList.add('btn-warning');
       btnReset.disabled = false;
       setInputsDisabled(true);
 
-      // Check if timer crossed zero while page was closed
       if (timerDuration <= 0 && !hasReachedZero) {
         hasReachedZero = true;
         timerDisplay.classList.add('negative');
@@ -355,15 +350,12 @@ inputMinutes.addEventListener('change', () => {
         timerSkull.hidden = false;
       }
     } else if (state.isPaused) {
-      // Timer was paused — restore exact duration
       timerDuration = state.timerDuration;
       timerTimeEl.textContent = formatTime(timerDuration);
       isRunning = false;
       isPaused = true;
 
       btnStart.textContent = 'Resume';
-      btnStart.disabled = false;
-      btnPause.disabled = true;
       btnReset.disabled = false;
       setInputsDisabled(true);
 
@@ -394,7 +386,6 @@ const inputRate          = document.getElementById('input-rate');
 const meetingTimerTimeEl = document.getElementById('meeting-timer-time');
 const meetingCostEl      = document.getElementById('meeting-cost');
 const btnMeetingStart    = document.getElementById('btn-meeting-start');
-const btnMeetingPause    = document.getElementById('btn-meeting-pause');
 const btnMeetingReset    = document.getElementById('btn-meeting-reset');
 
 // Persistence
@@ -446,19 +437,32 @@ inputPeople.addEventListener('input', () => { updateMeetingCost(); saveMeetingSt
 inputRate.addEventListener('input', () => { updateMeetingCost(); saveMeetingState(); });
 
 btnMeetingStart.addEventListener('click', () => {
+  if (meetingRunning) {
+    // Pause / End
+    clearInterval(meetingInterval);
+    meetingInterval = null;
+    meetingPaused = true;
+    meetingRunning = false;
+    btnMeetingStart.textContent = 'Resume';
+    btnMeetingStart.classList.remove('btn-warning');
+    btnMeetingStart.classList.add('btn-primary');
+    saveMeetingState();
+    return;
+  }
+
   if (meetingPaused) {
     // Resume
     meetingPaused = false;
     meetingRunning = true;
     meetingInterval = setInterval(meetingTick, 1000);
-    btnMeetingStart.textContent = 'Start Meeting';
-    btnMeetingStart.disabled = true;
-    btnMeetingPause.disabled = false;
-    btnMeetingPause.textContent = 'End Meeting';
+    btnMeetingStart.textContent = 'End Meeting';
+    btnMeetingStart.classList.remove('btn-primary');
+    btnMeetingStart.classList.add('btn-warning');
     saveMeetingState();
     return;
   }
 
+  // Fresh start
   meetingElapsed = 0;
   meetingRunning = true;
   meetingPaused = false;
@@ -466,22 +470,11 @@ btnMeetingStart.addEventListener('click', () => {
   updateMeetingCost();
   meetingInterval = setInterval(meetingTick, 1000);
 
-  btnMeetingStart.disabled = true;
-  btnMeetingPause.disabled = false;
+  btnMeetingStart.textContent = 'End Meeting';
+  btnMeetingStart.classList.remove('btn-primary');
+  btnMeetingStart.classList.add('btn-warning');
   btnMeetingReset.disabled = false;
-  setMeetingInputsDisabled(false); // allow changing people/rate mid-meeting
-  saveMeetingState();
-});
-
-btnMeetingPause.addEventListener('click', () => {
-  if (!meetingRunning) return;
-  clearInterval(meetingInterval);
-  meetingInterval = null;
-  meetingPaused = true;
-  meetingRunning = false;
-  btnMeetingPause.textContent = 'End Meeting';
-  btnMeetingStart.textContent = 'Resume';
-  btnMeetingStart.disabled = false;
+  setMeetingInputsDisabled(false);
   saveMeetingState();
 });
 
@@ -496,9 +489,8 @@ btnMeetingReset.addEventListener('click', () => {
   meetingCostEl.textContent = '$0.00';
 
   btnMeetingStart.textContent = 'Start Meeting';
-  btnMeetingStart.disabled = false;
-  btnMeetingPause.disabled = true;
-  btnMeetingPause.textContent = 'End Meeting';
+  btnMeetingStart.classList.remove('btn-warning');
+  btnMeetingStart.classList.add('btn-primary');
   btnMeetingReset.disabled = true;
   setMeetingInputsDisabled(false);
   clearMeetingState();
@@ -522,8 +514,9 @@ btnMeetingReset.addEventListener('click', () => {
       meetingRunning = true;
       meetingInterval = setInterval(meetingTick, 1000);
 
-      btnMeetingStart.disabled = true;
-      btnMeetingPause.disabled = false;
+      btnMeetingStart.textContent = 'End Meeting';
+      btnMeetingStart.classList.remove('btn-primary');
+      btnMeetingStart.classList.add('btn-warning');
       btnMeetingReset.disabled = false;
     } else if (state.meetingPaused) {
       meetingElapsed = state.meetingElapsed;
@@ -532,8 +525,6 @@ btnMeetingReset.addEventListener('click', () => {
       meetingPaused = true;
 
       btnMeetingStart.textContent = 'Resume';
-      btnMeetingStart.disabled = false;
-      btnMeetingPause.disabled = true;
       btnMeetingReset.disabled = false;
     }
   } catch (_) {
