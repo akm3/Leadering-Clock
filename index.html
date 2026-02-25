@@ -12,9 +12,12 @@
 
     <!-- Clock -->
     <section id="clock" class="section">
-      <div id="clock-date" class="clock-date"></div>
-      <div class="clock-display">
-        <span id="clock-time">00:00</span>
+      <h2 class="section-title section-toggle" data-section="clock">Clock</h2>
+      <div class="section-content">
+        <div id="clock-date" class="clock-date"></div>
+        <div class="clock-display">
+          <span id="clock-time">00:00</span>
+        </div>
       </div>
     </section>
 
@@ -22,26 +25,28 @@
 
     <!-- Timer -->
     <section id="timer" class="section">
-      <h2 class="section-title">Item Timer</h2>
-      <div class="timer-display" id="timer-display">
-        <span id="timer-skull" class="timer-skull" hidden>&#x1F480;</span>
-        <span id="timer-time">0:05:00</span>
-        <span id="timer-warning" class="timer-warning" hidden>!!!</span>
-      </div>
-      <div class="timer-inputs">
-        <div class="input-group">
-          <input type="number" id="input-minutes" min="0" max="999" value="5" placeholder="Min">
-          <label>Minutes</label>
+      <h2 class="section-title section-toggle" data-section="timer">Item Timer</h2>
+      <div class="section-content">
+        <div class="timer-display" id="timer-display">
+          <span id="timer-skull" class="timer-skull" hidden>&#x1F480;</span>
+          <span id="timer-time">0:05:00</span>
+          <span id="timer-warning" class="timer-warning" hidden>!!!</span>
         </div>
-      </div>
-      <div class="timer-controls">
-        <button id="btn-start" class="btn btn-primary">Start</button>
-        <button id="btn-pause" class="btn btn-warning" disabled>Pause</button>
-        <button id="btn-reset" class="btn btn-danger" disabled>Reset</button>
-      </div>
-      <div class="timer-adjust">
-        <button id="btn-minus1" class="btn btn-secondary">-1 Min</button>
-        <button id="btn-plus1" class="btn btn-secondary">+1 Min</button>
+        <div class="timer-inputs">
+          <div class="input-group">
+            <input type="number" id="input-minutes" min="0" max="999" value="5" placeholder="Min">
+            <label>Minutes</label>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button id="btn-start" class="btn btn-primary">Start</button>
+          <button id="btn-pause" class="btn btn-warning" disabled>Pause</button>
+          <button id="btn-reset" class="btn btn-danger" disabled>Reset</button>
+        </div>
+        <div class="timer-adjust">
+          <button id="btn-minus1" class="btn btn-secondary">-1 Min</button>
+          <button id="btn-plus1" class="btn btn-secondary">+1 Min</button>
+        </div>
       </div>
     </section>
 
@@ -49,33 +54,35 @@
 
     <!-- Meeting Cost Calculator -->
     <section id="meeting" class="section">
-      <h2 class="section-title">Meeting Cost</h2>
-      <div class="meeting-display">
-        <div class="meeting-cost-display">
-          <span class="cost-label">Total Cost</span>
-          <span id="meeting-cost" class="cost-value">$0.00</span>
-        </div>
-        <div class="meeting-timer-display" id="meeting-timer-display">
-          <span class="cost-label">Meet Time</span>
-          <span id="meeting-timer-time">0:00:00</span>
-        </div>
-      </div>
-      <div class="timer-controls">
-        <button id="btn-meeting-start" class="btn btn-primary">Start Meeting</button>
-        <button id="btn-meeting-pause" class="btn btn-warning" disabled>End Meeting</button>
-        <button id="btn-meeting-reset" class="btn btn-danger" disabled>Reset</button>
-      </div>
-      <div class="meeting-inputs">
-        <div class="input-group">
-          <input type="number" id="input-people" min="1" max="999" value="2" placeholder="#">
-          <label>People</label>
-        </div>
-        <div class="input-group">
-          <div class="currency-input">
-            <span class="currency-symbol">$</span>
-            <input type="number" id="input-rate" min="0" max="9999" value="75" step="5" placeholder="$/hr">
+      <h2 class="section-title section-toggle" data-section="meeting">Meeting Cost</h2>
+      <div class="section-content">
+        <div class="meeting-display">
+          <div class="meeting-cost-display">
+            <span class="cost-label">Total Cost</span>
+            <span id="meeting-cost" class="cost-value">$0.00</span>
           </div>
-          <label>Avg $/hr</label>
+          <div class="meeting-timer-display" id="meeting-timer-display">
+            <span class="cost-label">Meet Time</span>
+            <span id="meeting-timer-time">0:00:00</span>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button id="btn-meeting-start" class="btn btn-primary">Start Meeting</button>
+          <button id="btn-meeting-pause" class="btn btn-warning" disabled>End Meeting</button>
+          <button id="btn-meeting-reset" class="btn btn-danger" disabled>Reset</button>
+        </div>
+        <div class="meeting-inputs">
+          <div class="input-group">
+            <input type="number" id="input-people" min="1" max="999" value="2" placeholder="#">
+            <label>People</label>
+          </div>
+          <div class="input-group">
+            <div class="currency-input">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="input-rate" min="0" max="9999" value="75" step="5" placeholder="$/hr">
+            </div>
+            <label>Avg $/hr</label>
+          </div>
         </div>
       </div>
     </section>

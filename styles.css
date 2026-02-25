@@ -324,6 +324,48 @@ body::after {
   margin-bottom: 1.2rem;
 }
 
+/* ── Collapsible Sections ─────────────────────── */
+.section-toggle {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: color 0.2s ease;
+}
+
+.section-toggle:hover {
+  color: var(--it-blue-dark);
+}
+
+.section-toggle::after {
+  content: '▾';
+  font-size: 0.65rem;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.section.collapsed .section-toggle {
+  margin-bottom: 0;
+}
+
+.section.collapsed .section-toggle::after {
+  transform: rotate(-90deg);
+}
+
+.section-content {
+  overflow: hidden;
+  max-height: 800px;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+
+.section.collapsed .section-content {
+  max-height: 0;
+  opacity: 0;
+}
+
 /* ── Meeting Cost Calculator ─────────────────── */
 .meeting-inputs {
   display: flex;

@@ -59,6 +59,33 @@ function updateClock() {
 updateClock();
 clockInterval = setInterval(updateClock, 1000);
 
+// ── Collapsible Sections ────────────────────────
+(function initCollapsibleSections() {
+  const toggles = document.querySelectorAll('.section-toggle');
+  const saved = JSON.parse(localStorage.getItem('collapsedSections') || '{}');
+
+  // Restore saved collapsed state
+  toggles.forEach(toggle => {
+    const key = toggle.dataset.section;
+    if (saved[key]) {
+      toggle.closest('.section').classList.add('collapsed');
+    }
+  });
+
+  // Click handler
+  toggles.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const section = toggle.closest('.section');
+      section.classList.toggle('collapsed');
+
+      // Persist state
+      const state = JSON.parse(localStorage.getItem('collapsedSections') || '{}');
+      state[toggle.dataset.section] = section.classList.contains('collapsed');
+      localStorage.setItem('collapsedSections', JSON.stringify(state));
+    });
+  });
+})();
+
 // ── Timer Helpers ───────────────────────────────
 function formatTime(totalSeconds) {
   const abs = Math.abs(totalSeconds);
