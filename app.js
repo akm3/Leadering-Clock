@@ -64,19 +64,32 @@ clockInterval = setInterval(updateClock, 1000);
   const toggles = document.querySelectorAll('.section-toggle');
   const saved = JSON.parse(localStorage.getItem('collapsedSections') || '{}');
 
+  function getSectionForToggle(toggle) {
+    return toggle.closest('.section') || document.getElementById(toggle.dataset.section);
+  }
+
   // Restore saved collapsed state
   toggles.forEach(toggle => {
     const key = toggle.dataset.section;
     if (saved[key]) {
-      toggle.closest('.section').classList.add('collapsed');
+      getSectionForToggle(toggle).classList.add('collapsed');
+      // Sync arrow indicator on external toggles (app-title)
+      if (!toggle.closest('.section')) {
+        toggle.classList.add('collapsed-indicator');
+      }
     }
   });
 
   // Click handler
   toggles.forEach(toggle => {
     toggle.addEventListener('click', () => {
-      const section = toggle.closest('.section');
+      const section = getSectionForToggle(toggle);
       section.classList.toggle('collapsed');
+
+      // Sync arrow indicator on external toggles (app-title)
+      if (!toggle.closest('.section')) {
+        toggle.classList.toggle('collapsed-indicator', section.classList.contains('collapsed'));
+      }
 
       // Persist state
       const state = JSON.parse(localStorage.getItem('collapsedSections') || '{}');

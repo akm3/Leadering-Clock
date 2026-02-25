@@ -346,11 +346,26 @@ body::after {
   display: inline-block;
 }
 
+.section.collapsed .section-toggle,
+.app-title.section-toggle[data-section] {
+  /* base — margin is handled per-context */
+}
+
 .section.collapsed .section-toggle {
   margin-bottom: 0;
 }
 
+/* When the clock section is collapsed, hide it entirely (no internal title) */
+#clock.collapsed {
+  padding: 0;
+}
+
 .section.collapsed .section-toggle::after {
+  transform: rotate(-90deg);
+}
+
+/* App-title arrow when clock section is collapsed */
+.app-title.section-toggle.collapsed-indicator::after {
   transform: rotate(-90deg);
 }
 
